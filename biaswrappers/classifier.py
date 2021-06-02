@@ -1,9 +1,9 @@
 import numpy as np
 
-from models.bayes import NaiveBayes
+from _models import NaiveBayes
 
 
-class PGCClassifier(object):
+class BiasClassifier(object):
 
     def __init__(self, model=NaiveBayes()):
         self.model = model

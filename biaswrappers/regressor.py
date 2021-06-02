@@ -1,8 +1,8 @@
 import numpy as np
 
-from models.linear import LinearRegression
+from _models import LinearRegression
 
-class PGCRegressor(object):
+class BiasRegressor(object):
 
     def __init__(self, model=LinearRegression()):
         self.model = model

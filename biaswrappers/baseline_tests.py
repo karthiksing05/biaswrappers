@@ -1,5 +1,6 @@
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.datasets import load_iris, load_diabetes, load_digits, load_boston, make_classification, make_regression
+from sklearn.linear_model import LinearRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.datasets import load_digits, load_boston
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, mean_squared_error
 import numpy as np
@@ -9,23 +10,19 @@ def get_model_name(model):
     return str(model.__class__).split('.')[-1][:-2]
 
 
-def test_classification(model=None, mode=1):
+def test_classification(model=None):
 
-    if mode == 0:
-        data = load_digits()
+    data = load_digits()
 
-        X = data['data']
-        y = data['target']
-    elif mode == 1:
-        X, y = make_classification(
-            n_samples=1000, n_informative=5, flip_y=0.8, random_state=42)
+    X = data['data']
+    y = data['target']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
     if not model:
-        models = [LogisticRegression(max_iter=5000)]
+        models = [GaussianNB()]
     else:
-        models = [model, LogisticRegression(max_iter=5000)]
+        models = [model, GaussianNB()]
 
     for model in models:
         model.fit(X_train, y_train)
@@ -39,17 +36,12 @@ def test_classification(model=None, mode=1):
         print("Correct Answers out of total for {0}: {1}\n".format(get_model_name(model), num_correct))
         print("False Positives out of total for {0}: {1}\n".format(get_model_name(model), num_fp))
 
-def test_regression(model=None, mode=0):
+def test_regression(model=None):
 
-    if mode == 0:
-        data = load_boston()
+    data = load_boston()
 
-        X = data['data']
-        y = data['target']
-
-    elif mode == 1:
-        X, y = make_regression(
-            n_samples=1000, n_informative=5, random_state=42)
+    X = data['data']
+    y = data['target']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
