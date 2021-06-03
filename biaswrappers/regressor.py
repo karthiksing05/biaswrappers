@@ -1,6 +1,6 @@
 import numpy as np
 
-from _models import LinearRegression
+from biaswrappers._models import LinearRegression
 
 class BiasRegressor(object):
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from _models import NaiveBayes
+from biaswrappers._models import NaiveBayes
 
 
 class BiasClassifier(object):
