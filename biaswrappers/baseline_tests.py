@@ -62,7 +62,3 @@ def test_regression(model=None):
         print("Regression Results:")
         print("y_test Mean: {}".format(np.mean(y_test)))
         print("RMSE for {0}: {1}\n".format(get_model_name(model), round(rmse, ndigits=9)))
-
-if __name__ == '__main__':
-    from regressor import BiasRegressor
-    test_regression(BiasRegressor())
