@@ -5,7 +5,6 @@ pyproject.toml
 setup.cfg
 biaswrappers/__init__.py
 biaswrappers/baseline_tests.py
-biaswrappers/classifier.py
 biaswrappers/regressor.py
 biaswrappers.egg-info/PKG-INFO
 biaswrappers.egg-info/SOURCES.txt

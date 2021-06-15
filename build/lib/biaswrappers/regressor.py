@@ -8,7 +8,7 @@ class BiasRegressor(object):
         self.model = model
         self.m_vals = []
         self.k_vals = []
-        self.ftr_means = []
+        self.ftr_means: list = []
         self.over_under_lst = []
         self.p = 0
         self.over_under = 0
@@ -26,16 +26,14 @@ class BiasRegressor(object):
 
         if X.shape[0] != y.shape[0]:
             raise Exception("X and y must have the same shape.")
-
         split_idx = int(round(float(len(X) * split_size)))
-
         ftr_lsts = [[] for i in range(X.shape[1])]
         for ftr in X:
             for idx, val in enumerate(ftr):
                 ftr_lsts[idx].append(val)
         for lst in ftr_lsts:
-            self.ftr_means.append(sum(lst)/len(lst))
-        self.ftr_means = np.array(self.ftr_means).reshape(1, -1)
+            self.ftr_means = np.append(self.ftr_means, (sum(lst)/len(lst)))
+        self.ftr_means = np.array(self.ftr_means).reshape(-1, len(X[0]))
 
         X_train = X[:split_idx]
         X_val = X[split_idx:]
@@ -54,7 +52,6 @@ class BiasRegressor(object):
 
         for idx, ftr in enumerate(X_val):
             ftr = ftr.reshape(1, -1)
-            print(idx)
             y_preds = self.model.predict(ftr)
             if sum(self.over_under_lst) > 0:
                 y_preds = np.array([pred + p for pred in y_preds])
