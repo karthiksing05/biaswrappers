@@ -5,8 +5,9 @@ from sklearn.linear_model import LinearRegression
 
 class BiasRegressorC1(object):
 
-    def __init__(self, model=LinearRegression()):
+    def __init__(self, model=LinearRegression(), deadband=0.05):
         self.model = model
+        self.deadband = deadband
         self.m_vals = []
         self.k_vals = []
         self.ftr_means: list = []
@@ -18,7 +19,7 @@ class BiasRegressorC1(object):
     def get_params(self):
         return self.model
 
-    def fit(self, X: np.ndarray, y: np.ndarray, split_size: float = 0.5):
+    def fit(self, X: np.ndarray, y: np.ndarray, split_size: float = 0.45):
         '''
         This function does a fit of the given with penalty calculation along the way.
         '''
@@ -48,7 +49,7 @@ class BiasRegressorC1(object):
             self.k_vals = np.zeros(1).tolist()
 
         self.m_vals = self.model.predict(self.ftr_means)
-        if type(self.m_vals[0]) == list:
+        if len(list(self.m_vals.shape)) > 1:
             self.m_vals = self.m_vals[0]
 
         for idx, ftr in enumerate(X_val):
@@ -58,24 +59,27 @@ class BiasRegressorC1(object):
                 y_preds = np.array([pred + self.p for pred in y_preds])
             elif sum(self.over_under_lst) < 0:
                 y_preds = np.array([pred - self.p for pred in y_preds])
-            self.p = self._calibrate(y_preds, y_val[idx])
-        return self.p, self.model, sum(self.over_under_lst)
+            self._calibrate(y_preds, y_val[idx])
+        self.over_under = sum(self.over_under_lst) / len(self.over_under_lst)
+        return self.model
 
     def _calibrate(self, y_pred, y_val):
         if type(y_val) != np.ndarray:
             y_val = np.array([y_val])
+        if len(list(y_pred.shape)) > 1:
+            y_pred = y_pred[0]
         for i in range(len(y_val)):
             error = float(y_val[i] - y_pred[i])
-            if error > 0.05:
+            if error > self.deadband:
                 self.over_under_lst.append(1)
-            elif error < -0.05:
+            elif error < self.deadband:
                 self.over_under_lst.append(-1)
             else:
                 self.over_under_lst.append(0)
             m_val = float(self.m_vals[i])
             k = np.abs(error) / (m_val + 1)
             self.k_vals.append(k)
-        return float(sum(self.k_vals) / len(self.k_vals))
+        self.p = float(sum(self.k_vals) / len(self.k_vals))
 
     def predict(self, X: np.ndarray):
         y_preds = np.array([self.model.predict(X)])
@@ -88,8 +92,8 @@ class BiasRegressorC1(object):
 
 class BiasRegressorC2(object):
 
-    def __init__(self, preModel=LinearRegression(), postModel=LinearRegression()):
-        self.preModel = preModel
+    def __init__(self, model=LinearRegression(), postModel=LinearRegression()):
+        self.model = model
         self.postModel = postModel
         self.rmse = 0
 
@@ -109,9 +113,9 @@ class BiasRegressorC2(object):
         y_train = y[:split_idx]
         y_val = y[split_idx:]
 
-        self.preModel.fit(X_train, y_train)
+        self.model.fit(X_train, y_train)
 
-        y_val_preds = self.preModel.predict(X_val)
+        y_val_preds = self.model.predict(X_val)
 
         # add predicted answers to X_val and train the postModel
         newShape = list(X_val.shape)
@@ -126,7 +130,7 @@ class BiasRegressorC2(object):
         self.postModel.fit(newX_val, y_val)
 
     def predict(self, X: np.ndarray):
-        prePreds = self.preModel.predict(X)
+        prePreds = self.model.predict(X)
 
         newShape = list(X.shape)
         try:

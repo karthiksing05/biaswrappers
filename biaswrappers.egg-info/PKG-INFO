@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: biaswrappers
-Version: 0.4.0
+Version: 0.4.1
 Summary: a set of Regression Wrappers that combats bias in data for machine learning models through regularization
 Home-page: https://github.com/karthiksing05/biaswrappers
 Author: Karthik Singaravadivelan
@@ -21,6 +21,9 @@ BiasRegressorC1 uses a progressive regularization method to add a penalty to dat
 BiasRegressorC2 uses another regression model to generate features that prevent overfitting or underfitting (implicit regularization).
 
 ## Fixes
+
+### 0.4.1
+Small fixes regarding integration with some data, should work for all dimensions in the event of layered array for y_preds. Also, changed the dataset to use the default sklearn diabetes dataset instead of a Friedman problem, and rewrote some commands for clarity.
 
 ### 0.4.0
 Made many fixes to original BiasRegressor, now BiasRegressorC1, and added a second one incorporating machine learning regularization through generated features.

@@ -1,6 +1,6 @@
 from biaswrappers.regressor import BiasRegressorC1, BiasRegressorC2
 from sklearn.linear_model import LinearRegression
-from sklearn.datasets import *
+from sklearn.datasets import load_diabetes
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 import numpy as np
@@ -11,7 +11,7 @@ def get_model_name(model):
 
 def test_regression():
 
-    X, y = make_friedman3(noise=20)
+    X, y = load_diabetes(return_X_y=True)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 

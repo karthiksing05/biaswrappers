@@ -8,6 +8,9 @@ BiasRegressorC2 uses another regression model to generate features that prevent 
 
 ## Fixes
 
+### 0.4.1
+Small fixes regarding integration with some data, should work for all dimensions in the event of layered array for y_preds. Also, changed the dataset to use the default sklearn diabetes dataset instead of a Friedman problem, and rewrote some commands for clarity.
+
 ### 0.4.0
 Made many fixes to original BiasRegressor, now BiasRegressorC1, and added a second one incorporating machine learning regularization through generated features.
 
