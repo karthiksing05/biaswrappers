@@ -43,9 +43,10 @@ class RandomWrapper(object):
 
 class BiasRegressorC1(object):
 
-    def __init__(self, model=LinearRegression(), deadband=0.05):
+    def __init__(self, model=LinearRegression(), deadband=0.05, split_size=0.45):
         self.model = model
         self.deadband = deadband
+        self.split_size = split_size
         self.over_under_lst = []
         self.pLst = []
         self.numTargets = 0
@@ -53,16 +54,16 @@ class BiasRegressorC1(object):
         self.m_vals = []
 
     def get_params(self, deep=False):
-        return {"model": self.model, "deadband": self.deadband}
+        return {"model": self.model, "deadband": self.deadband, "split_size": self.split_size}
 
-    def fit(self, X: np.ndarray, y: np.ndarray, split_size: float = 0.45):
+    def fit(self, X: np.ndarray, y: np.ndarray):
         '''
         This function does a fit of the given with penalty calculation along the way.
         '''
 
         if X.shape[0] != y.shape[0]:
             raise Exception("X and y must have the same shape.")
-        split_idx = int(round(float(len(X) * split_size)))
+        split_idx = int(round(float(len(X) * self.split_size)))
 
         X_train = X[:split_idx]
         X_val = X[split_idx:]
@@ -128,20 +129,21 @@ class BiasRegressorC1(object):
 
 class BiasRegressorC2(object):
 
-    def __init__(self, model=LinearRegression(), postModel=LinearRegression()):
+    def __init__(self, model=LinearRegression(), postModel=LinearRegression(), split_size=0.45):
         self.model = model
         self.postModel = postModel
+        self.split_size = split_size
         self.totalRMSE = 0
         self.numTargets = 0
 
     def get_params(self, deep=False):
         return {"model": self.model, "postModel": self.postModel}
 
-    def fit(self, X: np.ndarray, y: np.ndarray, split_size: float = 0.25):
+    def fit(self, X: np.ndarray, y: np.ndarray):
         
         if X.shape[0] != y.shape[0]:
             raise Exception("X and y must have the same shape.")
-        split_idx = int(round(float(len(X) * split_size)))
+        split_idx = int(round(float(len(X) * self.split_size)))
 
         X_train = X[:split_idx]
         X_val = X[split_idx:]

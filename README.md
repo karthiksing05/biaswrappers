@@ -8,6 +8,9 @@ BiasRegressorC2 uses another regression model to fit on incorrect predictions an
 
 ## Fixes
 
+### 0.5.1.1
+Moved split_size parameter to the constructor to change it easier.
+
 ### 0.5.1
 Redid a lot more of the C1 method to allow for more subtle changes in the right direction: it now closely matches the FakeWrapper but is a lil different. Also, removed features from the postModel of C2 to allow for more pure error learning. Also, renamed FakeWrapper to RandomWrapper.
 
