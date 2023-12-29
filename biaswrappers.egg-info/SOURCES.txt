@@ -9,4 +9,5 @@ biaswrappers/regressor.py
 biaswrappers.egg-info/PKG-INFO
 biaswrappers.egg-info/SOURCES.txt
 biaswrappers.egg-info/dependency_links.txt
+biaswrappers.egg-info/requires.txt
 biaswrappers.egg-info/top_level.txt

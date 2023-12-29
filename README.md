@@ -8,6 +8,9 @@ BiasRegressorC2 uses another regression model to generate features that prevent 
 
 ## Fixes
 
+### 0.5.0
+Redid most of the C1 method to allow multi-output and specialized penalties through regularization. Also, created a "Fake Wrapper" that applies random penalties from 0 to 1 to test the C1 method fairly, proving the use of the specific penalties. Also, improved compatibility with native sklearn commands for metrics and model selection.
+
 ### 0.4.1
 Small fixes regarding integration with some data, should work for all dimensions in the event of layered array for y_preds. Also, changed the dataset to use the default sklearn diabetes dataset instead of a Friedman problem, and rewrote some commands for clarity.
 
