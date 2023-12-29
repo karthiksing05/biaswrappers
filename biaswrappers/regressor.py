@@ -2,7 +2,7 @@ import numpy as np
 
 from sklearn.linear_model import LinearRegression
 
-class FakeWrapper(object):
+class RandomWrapper(object):
 
     def __init__(self, model=LinearRegression()):
         self.model = model
@@ -21,12 +21,12 @@ class FakeWrapper(object):
             raise Exception("X and y must have the same shape.")
 
         try:
-            self.numFtrs = y.shape[1]
+            self.numTargets = y.shape[1]
         except IndexError:
-            self.numFtrs = 1
+            self.numTargets = 1
 
-        self.pLst = [np.random.rand() for _ in range(self.numFtrs)]
-        self.over_under_lst = [np.random.choice([-1, 1]) for _ in range(self.numFtrs)]
+        self.pLst = [np.random.rand() for _ in range(self.numTargets)]
+        self.over_under_lst = [np.random.choice([-1, 1]) for _ in range(self.numTargets)]
 
         self.model.fit(X, y)
 
@@ -41,7 +41,6 @@ class FakeWrapper(object):
                 y_preds[i] -= self.pLst[i]
         return y_preds
 
-
 class BiasRegressorC1(object):
 
     def __init__(self, model=LinearRegression(), deadband=0.05):
@@ -49,8 +48,9 @@ class BiasRegressorC1(object):
         self.deadband = deadband
         self.over_under_lst = []
         self.pLst = []
-        self.numFtrs = 0
-        self.over_under = 0
+        self.numTargets = 0
+        self.ftr_means = []
+        self.m_vals = []
 
     def get_params(self, deep=False):
         return {"model": self.model, "deadband": self.deadband}
@@ -70,28 +70,40 @@ class BiasRegressorC1(object):
         y_train = y[:split_idx]
         y_val = y[split_idx:]
 
-        try:
-            self.numFtrs = y.shape[1]
-        except IndexError:
-            self.numFtrs = 1
+        ftr_lsts = [[] for i in range(X.shape[1])]
+        for ftr in X:
+            for idx, val in enumerate(ftr):
+                ftr_lsts[idx].append(val)
+        for lst in ftr_lsts:
+            self.ftr_means = np.append(self.ftr_means, (sum(lst)/len(lst)))
+        self.ftr_means = np.array(self.ftr_means).reshape(-1, len(X[0]))
 
-        self.over_under_lst = [0] * self.numFtrs
-        self.pLst = [0] * self.numFtrs
+        try:
+            self.numTargets = y.shape[1]
+        except IndexError:
+            self.numTargets = 1
+
+        self.over_under_lst = [[]] * self.numTargets
+        self.pLst = [0] * self.numTargets
 
         self.model.fit(X_train, y_train)
+
+        self.m_vals = self.model.predict(self.ftr_means)
+        while len(list(self.m_vals.shape)) > 1:
+            self.m_vals = self.m_vals[0]
 
         for idx, ftr in enumerate(X_val):
             ftr = ftr.reshape(1, -1)
             y_preds = self.model.predict(ftr)
             for i in range(len(y_preds)):
-                if self.over_under_lst[i] > 0:
+                if sum(self.over_under_lst[i]) > 0:
                     y_preds[i] += self.pLst[i]
-                elif self.over_under_lst[i] < 0:
+                elif sum(self.over_under_lst[i]) < 0:
                     y_preds[i] -= self.pLst[i]
-            self._calibrate(y_preds, y_val[idx])
+            self._calibrate(idx, y_preds, y_val[idx])
         return self.model
 
-    def _calibrate(self, y_pred, y_val):
+    def _calibrate(self, iteration, y_pred, y_val):
         if type(y_val) != np.ndarray:
             y_val = np.array([y_val])
         if len(list(y_pred.shape)) > 1:
@@ -100,18 +112,17 @@ class BiasRegressorC1(object):
         for i in range(len(y_val)):
             error = float(y_val[i] - y_pred[i])
             if error > self.deadband:
-                self.over_under_lst[i] += 1
+                self.over_under_lst[i].append(-1)
             elif error < self.deadband:
-                self.over_under_lst[i] -= 1
-            self.pLst[i] = (self.pLst[i] + np.abs(error)) / 2
+                self.over_under_lst[i].append(1)
+            else:
+                self.over_under_lst[i].append(0)
+            self.pLst[i] = (self.pLst[i] + (np.abs(error) / (self.m_vals[i] + 1))) / (2)
 
     def predict(self, X: np.ndarray):
         y_preds = np.array([self.model.predict(X)])
         for i in range(len(y_preds)):
-            if self.over_under_lst[i] > 0:
-                y_preds[i] += self.pLst[i]
-            elif self.over_under_lst[i] < 0:
-                y_preds[i] -= self.pLst[i]
+            y_preds[i] += sum(self.over_under_lst[i]) / len(self.over_under_lst[i]) * self.pLst[i]
         return y_preds
 
 
@@ -121,6 +132,7 @@ class BiasRegressorC2(object):
         self.model = model
         self.postModel = postModel
         self.totalRMSE = 0
+        self.numTargets = 0
 
     def get_params(self, deep=False):
         return {"model": self.model, "postModel": self.postModel}
@@ -139,30 +151,21 @@ class BiasRegressorC2(object):
 
         self.model.fit(X_train, y_train)
 
+        try:
+            self.numTargets = y.shape[1]
+        except IndexError:
+            self.numTargets = 1
+
         y_val_preds = self.model.predict(X_val)
 
-        # add predicted answers to X_val and train the postModel
-        newShape = list(X_val.shape)
-        try:
-            newShape[1] += len(list(y_val_preds[0]))
-        except TypeError:
-            newShape[1] += 1
-        newX_val = np.ndarray(shape=tuple(newShape))
-        for i in range(len(X_val)):
-            newX_val[i] = np.append(X_val[i], y_val_preds[i])
+        if self.numTargets == 1:
+            y_val_preds = np.array([[pred] for pred in y_val_preds])
 
-        self.postModel.fit(newX_val, y_val)
+        self.postModel.fit(y_val_preds, y_val)
 
     def predict(self, X: np.ndarray):
         prePreds = self.model.predict(X)
+        if self.numTargets == 1:
+            prePreds = np.array([[pred] for pred in prePreds])
 
-        newShape = list(X.shape)
-        try:
-            newShape[1] += len(list(prePreds[0]))
-        except TypeError:
-            newShape[1] += 1
-        newX = np.ndarray(shape=tuple(newShape))
-        for i in range(len(X)):
-            newX[i] = np.append(X[i], prePreds[i])
-
-        return self.postModel.predict(newX)
+        return self.postModel.predict(prePreds)

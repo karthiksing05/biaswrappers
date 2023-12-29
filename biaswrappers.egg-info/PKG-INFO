@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: biaswrappers
-Version: 0.5.0
+Version: 0.5.1
 Summary: A set of Regression Wrappers that combats bias in data for machine learning models through custom regularization techniques.
 Home-page: https://github.com/karthiksing05/biaswrappers
 Author: Karthik Singaravadivelan
@@ -14,11 +14,14 @@ License-File: LICENSE
 
 Wrappers for standard multioutput machine learning regressors that apply regularization to training to produce better testing results, with a bias factor. Used mainly to combat bias on seemingly random/biased data. Default models are Linear Regression, however, you can input your own machine learning models with the model param.
 
-BiasRegressorC1 uses a progressive regularization method to add a penalty to data, to prevent overfitting or underfitting due to noise via bias (explicit regularization).
+BiasRegressorC1 uses a progressive regularization method to calculate a penalty to add to data, to prevent overfitting or underfitting due to noise via bias (explicit regularization).
 
-BiasRegressorC2 uses another regression model to generate features that prevent overfitting or underfitting (implicit regularization).
+BiasRegressorC2 uses another regression model to fit on incorrect predictions and correct answers, to identify patterns of overfitting or underfitting and arrive at a more correct answer (implicit regularization).
 
 ## Fixes
+
+### 0.5.1
+Redid a lot more of the C1 method to allow for more subtle changes in the right direction: it now closely matches the FakeWrapper but is a lil different. Also, removed features from the postModel of C2 to allow for more pure error learning. Also, renamed FakeWrapper to RandomWrapper.
 
 ### 0.5.0
 Redid most of the C1 method to allow multi-output and specialized penalties through regularization. Also, created a "Fake Wrapper" that applies random penalties from 0 to 1 to test the C1 method fairly, proving the use of the specific penalties. Also, improved compatibility with native sklearn commands for metrics and model selection.
