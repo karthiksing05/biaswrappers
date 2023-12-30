@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: biaswrappers
-Version: 0.5.1.1
+Version: 0.5.1.2
 Summary: A set of Regression Wrappers that combats bias in data for machine learning models through custom regularization techniques.
 Home-page: https://github.com/karthiksing05/biaswrappers
 Author: Karthik Singaravadivelan
@@ -19,6 +19,9 @@ BiasRegressorC1 uses a progressive regularization method to calculate a penalty 
 BiasRegressorC2 uses another regression model to fit on incorrect predictions and correct answers, to identify patterns of overfitting or underfitting and arrive at a more correct answer (implicit regularization).
 
 ## Fixes
+
+### 0.5.1.2
+Small changes to the regressors to allow for continuity with the research paper!
 
 ### 0.5.1.1
 Moved split_size parameter to the constructor to change it easier.

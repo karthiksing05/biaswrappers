@@ -8,6 +8,9 @@ BiasRegressorC2 uses another regression model to fit on incorrect predictions an
 
 ## Fixes
 
+### 0.5.1.2
+Small changes to the regressors to allow for continuity with the research paper!
+
 ### 0.5.1.1
 Moved split_size parameter to the constructor to change it easier.
 

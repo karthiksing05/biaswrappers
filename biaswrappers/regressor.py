@@ -101,10 +101,10 @@ class BiasRegressorC1(object):
                     y_preds[i] += self.pLst[i]
                 elif sum(self.over_under_lst[i]) < 0:
                     y_preds[i] -= self.pLst[i]
-            self._calibrate(idx, y_preds, y_val[idx])
+            self._calibrate(y_preds, y_val[idx])
         return self.model
 
-    def _calibrate(self, iteration, y_pred, y_val):
+    def _calibrate(self, y_pred, y_val):
         if type(y_val) != np.ndarray:
             y_val = np.array([y_val])
         if len(list(y_pred.shape)) > 1:
@@ -137,7 +137,7 @@ class BiasRegressorC2(object):
         self.numTargets = 0
 
     def get_params(self, deep=False):
-        return {"model": self.model, "postModel": self.postModel}
+        return {"model": self.model, "postModel": self.postModel, "split_size": self.split_size}
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         
