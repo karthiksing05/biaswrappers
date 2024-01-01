@@ -1,3 +1,5 @@
+![Bias Wrappers Logo](/static/logo.png)
+
 # Bias Wrappers
 
 Wrappers for standard multioutput machine learning regressors that apply regularization to training to produce better testing results, with a bias factor. Used mainly to combat bias on seemingly random/biased data. Default models are Linear Regression, however, you can input your own machine learning models with the model param.
@@ -7,6 +9,9 @@ BiasRegressorC1 uses a progressive regularization method to calculate a penalty 
 BiasRegressorC2 uses another regression model to fit on incorrect predictions and correct answers, to identify patterns of overfitting or underfitting and arrive at a more correct answer (implicit regularization).
 
 ## Fixes
+
+### 0.5.1.3
+Added the logo!
 
 ### 0.5.1.2
 Small changes to the regressors to allow for continuity with the research paper!
