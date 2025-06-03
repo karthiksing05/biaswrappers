@@ -2,6 +2,8 @@
 
 # Bias Wrappers
 
+[![PyPI Downloads](https://static.pepy.tech/badge/biaswrappers)](https://pepy.tech/projects/biaswrappers)
+
 Wrappers for standard multioutput machine learning regressors that apply regularization to training to produce better testing results, with a bias factor. Used mainly to combat bias on seemingly random/biased data. Default models are Linear Regression, however, you can input your own machine learning models with the model param.
 
 BiasRegressorC1 uses a progressive regularization method to calculate a penalty to add to data, to prevent overfitting or underfitting due to noise via bias (explicit regularization).
